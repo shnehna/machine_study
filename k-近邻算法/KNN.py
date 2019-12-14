@@ -1,5 +1,5 @@
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
@@ -31,8 +31,7 @@ def knncls():
     data = data[data['place_id'].isin(tf.place_id)]
     # 去除特征值和目标值
     y = data['place_id']
-    x = data.drop(['place_id'], axis=1)
-    x = data.drop(['row_id'], axis=1)
+    x = data.drop(['place_id', 'row_id'], axis=1)
     # 数据分割 训练集和测试集
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
 
@@ -42,12 +41,21 @@ def knncls():
     x_train = std.fit_transform(x_train)
     x_test = std.transform(x_test)
     # 算法流程
-    knn = KNeighborsClassifier(n_neighbors=5)
-    knn.fit(x_train, y_train)
-    y_predict = knn.predict(x_test)
-    print("预测目标签到位置：", y_predict)
-    # 得出准确率
-    print("预测准确率：", knn.score(x_test, y_test))
+    # knn = KNeighborsClassifier(n_neighbors=5)
+    # knn.fit(x_train, y_train)
+    # y_predict = knn.predict(x_test)
+    # print("预测目标签到位置：", y_predict)
+    # # 得出准确率
+    # print("预测准确率：", knn.score(x_test, y_test))
+    # 进行网格搜索
+    knn = KNeighborsClassifier()
+    param = {"n_neighbors": [3, 5, 10]}
+    gc = GridSearchCV(knn, param_grid=param, cv=2)
+    gc.fit(x_train, y_train)
+    print("测试集上的准确率", gc.score(x_test, y_test))
+    print(gc.best_score_)
+    print(gc.best_params_)
+    print(gc.cv_results_)
 
 
 if __name__ == '__main__':
