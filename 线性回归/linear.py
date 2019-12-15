@@ -3,6 +3,7 @@ from sklearn.linear_model import LinearRegression, SGDRegressor, Ridge
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error
+from sklearn.externals import joblib
 
 
 def mylinear():
@@ -40,8 +41,15 @@ def mylinear():
     ri.fit(x_train, y_train)
     print(ri.coef_)
     y_ri_predict = std_y.inverse_transform(ri.predict(x_test))
-    # print("每个房子预测价格", y_ri_predict)
+    print("每个房子预测价格", y_ri_predict)
     print("岭回归的均方误差：", mean_squared_error(std_y.inverse_transform(y_test), y_ri_predict))
+
+    # 保存模型
+    joblib.dump(ri, "./test.pkl")
+    # 加载模型
+    model = joblib.load("./test.pkl")
+    predict = std_y.inverse_transform(model.predict(x_test))
+    print(predict)
 
 
 if __name__ == '__main__':
